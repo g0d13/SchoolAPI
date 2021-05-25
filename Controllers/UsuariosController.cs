@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SchoolAPI;
 using SchoolAPI.DataTransferObjects;
 using SchoolAPI.Models;
 
@@ -18,12 +14,10 @@ namespace SchoolAPI.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly RepositoryContext _context;
-        private readonly IMapper _mapper;
 
-        public UsuariosController(RepositoryContext context,  IMapper mapper)
+        public UsuariosController(RepositoryContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Usuarios
@@ -60,27 +54,23 @@ namespace SchoolAPI.Controllers
         // PUT: api/Usuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<IActionResult> PutUsuario(UsuarioDto usuario)
+        public async Task<IActionResult> PutUsuario(Usuario usuario)
         {
             usuario.Pass = Hash(usuario.Pass);
-            var usuarioDb = _mapper.Map<Usuario>(usuario);
-            usuarioDb.RolId = (int) usuario.Role;
-            _context.Entry(usuarioDb).State = EntityState.Modified;
+            _context.Entry(usuario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return Ok(usuarioDb);
+            return Ok(usuario);
         }
 
         // POST: api/Usuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario(UsuarioDto usuario)
+        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
             usuario.Pass = Hash(usuario.Pass);
-            var usuarioDb = _mapper.Map<Usuario>(usuario);
-            usuarioDb.RolId = (int) usuario.Role;
-            await _context.Usuarios.AddAsync(usuarioDb);
+            await _context.Usuarios.AddAsync(usuario);
             await _context.SaveChangesAsync();
-            return Ok(usuarioDb);
+            return Ok(usuario);
         }
 
         // DELETE: api/Usuarios/5
