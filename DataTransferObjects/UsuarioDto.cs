@@ -1,6 +1,6 @@
-namespace SchoolAPI.Models
+namespace SchoolAPI.DataTransferObjects
 {
-    public class Usuario
+    public class UsuarioDto
     {
         public int Id { get; set; }
         public string Iae { get; set; }
@@ -10,7 +10,12 @@ namespace SchoolAPI.Models
         public string Direccion { get; set; }
         public string Correo { get; set; }
         public string Pass { get; set; }
-        public int RolId { get; set; }
-        public Rol Rol { get; set; }
+        public Role Role { get; set; }
+    }
+
+    public enum Role
+    {
+        Maestro = 1,
+        Alumno = 2
     }
 }

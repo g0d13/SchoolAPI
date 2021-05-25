@@ -4,9 +4,9 @@ namespace SchoolAPI.Models
     {
         public int Id { get; set; }
         public int Unidad { get; set; }
-        public int IdUsuario { get; set; }
+        public int UsuarioId { get; set; }
         public Usuario Usuario { get; set; }
-        public int IdMateria { get; set; }
+        public int MateriaId { get; set; }
         public Materia Materia { get; set; }
     }
 }

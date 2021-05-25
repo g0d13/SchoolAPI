@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SchoolAPI;
+using SchoolAPI.DataTransferObjects;
 using SchoolAPI.Models;
 
 namespace SchoolAPI.Controllers
@@ -16,17 +18,19 @@ namespace SchoolAPI.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly RepositoryContext _context;
+        private readonly IMapper _mapper;
 
-        public UsuariosController(RepositoryContext context)
+        public UsuariosController(RepositoryContext context,  IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Usuarios
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-            return await _context.Usuarios.ToListAsync();
+            return await _context.Usuarios.Include(us => us.Rol).ToListAsync();
         }
         
         private string Hash(string texto)
@@ -56,24 +60,27 @@ namespace SchoolAPI.Controllers
         // PUT: api/Usuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<IActionResult> PutUsuario(Usuario usuario)
+        public async Task<IActionResult> PutUsuario(UsuarioDto usuario)
         {
             usuario.Pass = Hash(usuario.Pass);
-            _context.Entry(usuario).State = EntityState.Modified;
+            var usuarioDb = _mapper.Map<Usuario>(usuario);
+            usuarioDb.RolId = (int) usuario.Role;
+            _context.Entry(usuarioDb).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok(usuarioDb);
         }
 
         // POST: api/Usuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario([FromBody]Usuario usuario)
+        public async Task<ActionResult<Usuario>> PostUsuario(UsuarioDto usuario)
         {
             usuario.Pass = Hash(usuario.Pass);
-            await _context.Usuarios.AddAsync(usuario);
+            var usuarioDb = _mapper.Map<Usuario>(usuario);
+            usuarioDb.RolId = (int) usuario.Role;
+            await _context.Usuarios.AddAsync(usuarioDb);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(usuarioDb);
         }
 
         // DELETE: api/Usuarios/5
