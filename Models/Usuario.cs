@@ -8,6 +8,7 @@ namespace SchoolAPI.Models
         public string Apepat { get; set; }
         public string Apemat { get; set; }
         public string Direccion { get; set; }
+        public string Correo { get; set; }
         public string Pass { get; set; }
         public int IdRol { get; set; }
         public Rol Rol { get; set; }
