@@ -78,6 +78,17 @@ namespace SchoolAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Calificacion>> PostCalificacion(Calificacion calificacion)
         {
+            var usuario = await _context.Usuarios.FindAsync(calificacion.UsuarioId);
+            if (usuario != null)
+            {
+                return NotFound(new { Mensaje="No exite el usuario" });
+            }
+
+            var materia = await _context.Materias.FindAsync(calificacion.MateriaId);
+            if (materia != null)
+            {
+                return NotFound(new {Mensaje = "No existe la materia"});
+            }
             _context.Calificacions.Add(calificacion);
             await _context.SaveChangesAsync();
 

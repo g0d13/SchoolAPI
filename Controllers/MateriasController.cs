@@ -47,29 +47,13 @@ namespace SchoolAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMateria(int id, Materia materia)
         {
-            if (id != materia.Id)
+            var grado = await  _context.Grados.FindAsync(materia.GradoId);
+            if (grado == null)
             {
-                return BadRequest();
+                return NotFound(new {Mensaje = "No existe el grado"});
             }
-
             _context.Entry(materia).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MateriaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -78,7 +62,12 @@ namespace SchoolAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Materia>> PostMateria(Materia materia)
         {
-            _context.Materias.Add(materia);
+            var grado = await  _context.Grados.FindAsync(materia.GradoId);
+            if (grado == null)
+            {
+                return NotFound(new {Mensaje = "No existe el grado"});
+            }
+            await _context.Materias.AddAsync(materia);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetMateria", new { id = materia.Id }, materia);

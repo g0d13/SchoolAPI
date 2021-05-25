@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -57,6 +58,11 @@ namespace SchoolAPI.Controllers
         public async Task<IActionResult> PutUsuario(Usuario usuario)
         {
             usuario.Pass = Hash(usuario.Pass);
+            var rol = await _context.Roles.FindAsync(usuario.RolId);
+            if (rol == null)
+            {
+                return NotFound(new {Mensaje = "No existe el rol"});
+            }
             _context.Entry(usuario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return Ok(usuario);
@@ -67,7 +73,19 @@ namespace SchoolAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
+            var tmpUser = await _context.Usuarios
+                .Where(u => u.Correo == usuario.Correo || u.Iae == usuario.Iae)
+                .FirstOrDefaultAsync();
+            if (tmpUser != null)
+            {
+                return Conflict(new {Mensaje = "El correo ya existe"});
+            }
             usuario.Pass = Hash(usuario.Pass);
+            var rol = await _context.Roles.FindAsync(usuario.RolId);
+            if (rol == null)
+            {
+                return NotFound(new {Mensaje = "No existe el rol"});
+            }
             await _context.Usuarios.AddAsync(usuario);
             await _context.SaveChangesAsync();
             return Ok(usuario);
