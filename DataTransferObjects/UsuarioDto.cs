@@ -10,12 +10,6 @@ namespace SchoolAPI.DataTransferObjects
         public string Direccion { get; set; }
         public string Correo { get; set; }
         public string Pass { get; set; }
-        public Role Role { get; set; }
-    }
-
-    public enum Role
-    {
-        Maestro = 1,
-        Alumno = 2
+        public int Role { get; set; }
     }
 }

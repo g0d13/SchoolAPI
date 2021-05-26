@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using SchoolAPI.DataTransferObjects;
 using SchoolAPI.Models;
 
 namespace SchoolAPI.Controllers
@@ -33,25 +34,21 @@ namespace SchoolAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Usuario usuario)
+        public IActionResult Post([FromBody]LoginDto usuario)
         {
 
-            Usuario tmp = context.Usuarios.FirstOrDefault(x => x.Correo == usuario.Correo
-            && x.Pass == Hash(usuario.Pass));
+            Usuario tmp = context.Usuarios.FirstOrDefault(x => x.Id == usuario.Id && x.Pass == Hash(usuario.Pass));
             if(tmp == null)
             {
                 return Ok(new { StatusCode = "400", mensaje = "Usuario y/o password incorrecto", token = "NG" });
             }
-            else
-            {
-                string token = obtenerToken(tmp);
-                return Ok(new {StatusCode = "200", mensaje = "Bienvenido usuario", token = token, usuario=usuario });
-            }
+            string token = obtenerToken(tmp);
+            return Ok(new {StatusCode = "200", mensaje = "Bienvenido usuario", token = token, usuario=usuario });
         }
 
         private string obtenerToken(Usuario usuario)
         {
-            var SecretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(conf["Authentication:SecretKey"]));
+            var SecretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(conf["JwtBearerTokenSettings:SecretKey"]));
             var credenciales = new SigningCredentials(SecretKey, SecurityAlgorithms.HmacSha256);
             var encabezado = new JwtHeader(credenciales);
 
