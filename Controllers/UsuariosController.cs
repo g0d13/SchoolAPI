@@ -55,38 +55,60 @@ namespace SchoolAPI.Controllers
         // PUT: api/Usuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<IActionResult> PutUsuario(Usuario usuario)
+        public async Task<IActionResult> PutUsuario([FromBody]UsuarioDto usuario)
         {
-            usuario.Pass = Hash(usuario.Pass);
-            var rol = await _context.Roles.FindAsync(usuario.RolId);
+            var rol = await _context.Roles.FindAsync(usuario.Role);
             if (rol == null)
             {
                 return NotFound(new {Mensaje = "No existe el rol"});
             }
-            _context.Entry(usuario).State = EntityState.Modified;
+            var dbUsuario = new Usuario
+            {
+                Apemat = usuario.Apemat,
+                Apepat = usuario.Apepat,
+                Correo = usuario.Correo,
+                Direccion = usuario.Direccion,
+                Iae = usuario.Iae,
+                Nombre = usuario.Nombre,
+                Pass = Hash(usuario.Pass),
+                RolId = usuario.Role,
+            };
+            
+            _context.Entry(dbUsuario).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return Ok(usuario);
+            return Ok(dbUsuario);
         }
 
         // POST: api/Usuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
+        public async Task<ActionResult<Usuario>> PostUsuario(UsuarioDto usuario)
         {
             var tmpUser = await _context.Usuarios
                 .Where(u => u.Correo == usuario.Correo || u.Iae == usuario.Iae)
                 .FirstOrDefaultAsync();
             if (tmpUser != null)
             {
-                return Conflict(new {Mensaje = "El correo ya existe"});
+                return Conflict(new {Mensaje = "El correo o iea ya existe"});
             }
-            usuario.Pass = Hash(usuario.Pass);
-            var rol = await _context.Roles.FindAsync(usuario.RolId);
+            var rol = await _context.Roles.FindAsync(usuario.Role);
             if (rol == null)
             {
                 return NotFound(new {Mensaje = "No existe el rol"});
             }
-            await _context.Usuarios.AddAsync(usuario);
+
+            var dbUsuario = new Usuario
+            {
+                Apemat = usuario.Apemat,
+                Apepat = usuario.Apepat,
+                Correo = usuario.Correo,
+                Direccion = usuario.Direccion,
+                Iae = usuario.Iae,
+                Nombre = usuario.Nombre,
+                Pass = Hash(usuario.Pass),
+                RolId = usuario.Role,
+            };
+            await _context.Usuarios.AddAsync(dbUsuario);
             await _context.SaveChangesAsync();
             return Ok(usuario);
         }
